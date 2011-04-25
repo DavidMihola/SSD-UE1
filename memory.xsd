@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:mem="http://www.dbai.tuwien.ac.at/education/ssd/SS11/uebung/Memory"
+  targetNamespace="http://www.dbai.tuwien.ac.at/education/ssd/SS11/uebung/Memory">
+
+  <xs:element name="game" type="mem:MemoryGame"/>
+
+<xs:complexType name="MemoryGame">
+  
+</xs:complexType>
+
+<xs:simpleType name="CardStateType">
+  <xs:union memberTypes="mem:CardStateNumericType mem:CardStateStringType"/>
+</xs:simpleType>
+
+<xs:simpleType name="CardStateNumericType">
+  <xs:restriction base="xs:integer">
+    <xs:minInclusive value="0"/>
+    <xs:maxInclusive value="1"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="CardStateStringType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="COVERED"/>
+    <xs:enumeration value="UNCOVERED"/>
+  </xs:restriction>
+</xs:simpleType>
+
+
+</xs:schema>
+
