@@ -1,32 +1,149 @@
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:mem="http://www.dbai.tuwien.ac.at/education/ssd/SS11/uebung/Memory"
-  targetNamespace="http://www.dbai.tuwien.ac.at/education/ssd/SS11/uebung/Memory">
+           xmlns:mem="http://www.dbai.tuwien.ac.at/education/ssd/SS11/uebung/Memory"
+           targetNamespace="http://www.dbai.tuwien.ac.at/education/ssd/SS11/uebung/Memory"
+           elementFormDefault="qualified">
 
-  <xs:element name="game" type="mem:MemoryGame"/>
+    <xs:element name="game" type="mem:MemoryGame">
+        <xs:keyref name="current-player-reference" refer="mem:playerName">
+            <xs:selector xpath="."></xs:selector>
+            <xs:field xpath="@current-player"></xs:field>
+        </xs:keyref>
+        <xs:keyref name="current-card1-reference" refer="mem:cardKey">
+            <xs:selector xpath="."></xs:selector>
+            <xs:field xpath="@current-card1"></xs:field>
+        </xs:keyref>
+        <xs:keyref name="current-card2-reference" refer="mem:cardKey">
+            <xs:selector xpath="."></xs:selector>
+            <xs:field xpath="@current-card2"></xs:field>
+        </xs:keyref>
 
-<xs:complexType name="MemoryGame">
-  
-</xs:complexType>
+        <xs:keyref name="card1-reference" refer="mem:cardKey">
+            <xs:selector xpath=".//mem:pair"></xs:selector>
+            <xs:field xpath="@card1"></xs:field>
+        </xs:keyref>
+        <xs:keyref name="card2-reference" refer="mem:cardKey">
+            <xs:selector xpath=".//mem:pair"></xs:selector>
+            <xs:field xpath="@card2"></xs:field>
+        </xs:keyref>
+    </xs:element>
 
-<xs:simpleType name="CardStateType">
-  <xs:union memberTypes="mem:CardStateNumericType mem:CardStateStringType"/>
-</xs:simpleType>
+    <xs:simpleType name="nonNegativeLong">
+        <xs:restriction base="xs:long">
+            <xs:minInclusive value="0"></xs:minInclusive>
+        </xs:restriction>
+    </xs:simpleType>
 
-<xs:simpleType name="CardStateNumericType">
-  <xs:restriction base="xs:integer">
-    <xs:minInclusive value="0"/>
-    <xs:maxInclusive value="1"/>
-  </xs:restriction>
-</xs:simpleType>
+    <xs:simpleType name="CardStateType">
+        <xs:union>
+            <xs:simpleType>
+                <xs:restriction base="xs:integer">
+                    <xs:minInclusive value="0"/>
+                    <xs:maxInclusive value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="COVERED"/>
+                    <xs:enumeration value="UNCOVERED"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:union>
+    </xs:simpleType>
 
-<xs:simpleType name="CardStateStringType">
-  <xs:restriction base="xs:string">
-    <xs:enumeration value="COVERED"/>
-    <xs:enumeration value="UNCOVERED"/>
-  </xs:restriction>
-</xs:simpleType>
+    <xs:complexType name="MemoryCard">
+        <xs:attribute name="column" type="xs:integer" use="required"></xs:attribute>
+        <xs:attribute name="row" type="xs:integer" use="required"></xs:attribute>
+        <xs:attribute name="id" type="xs:string" use="required"></xs:attribute>
+        <xs:attribute name="key" type="xs:string" use="required"></xs:attribute>
+        <xs:attribute name="current-state" type="mem:CardStateType" use="required"></xs:attribute>
+        <xs:attribute name="uncover-count" type="xs:integer" default="0"></xs:attribute>
+    </xs:complexType>
 
+    <xs:complexType name="MemoryCardPairs">
+        <xs:sequence>
+            <xs:element name="pair" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="card1" type="xs:string" use="required"></xs:attribute>
+                    <xs:attribute name="card2" type="xs:string" use="required"></xs:attribute>
+                    <xs:attribute name="is-match" type="xs:boolean" default="false"></xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="MemoryPlayer">
+        <xs:all>
+            <xs:element name="player-description" minOccurs="0">
+                <xs:complexType mixed="true">
+                    <xs:sequence>
+                        <xs:element name="date" type="xs:date" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="uncovered-pairs" type="mem:MemoryCardPairs" minOccurs="0"></xs:element>
+        </xs:all>
+        <xs:attribute name="name" type="xs:string"></xs:attribute>
+        <xs:attribute name="spent-time" type="mem:nonNegativeLong"></xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="MemoryGame">
+        <xs:all>
+            <xs:element name="table">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="card" type="mem:MemoryCard" minOccurs="2" maxOccurs="unbounded"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+                <xs:key name="cardKey">
+                    <xs:selector xpath="mem:card"></xs:selector>
+                    <xs:field xpath="@key"></xs:field>
+                </xs:key>
+            </xs:element>
+
+            <xs:element name="players">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="player" type="mem:MemoryPlayer" minOccurs="1" maxOccurs="unbounded"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+                <xs:key name="playerName">
+                    <xs:selector xpath="mem:player"></xs:selector>
+                    <xs:field xpath="@name"></xs:field>
+                </xs:key>
+            </xs:element>
+
+            <xs:element name="covered-pairs" type="mem:MemoryCardPairs" minOccurs="0"></xs:element>
+
+            <xs:element name="uncovered-pairs" type="mem:MemoryCardPairs" minOccurs="0"></xs:element>
+        </xs:all>
+        <xs:attribute name="current-player" type="xs:string" use="optional"></xs:attribute>
+        <xs:attribute name="current-card1" type="xs:string" use="optional"></xs:attribute>
+        <xs:attribute name="current-card2" type="xs:string" use="optional"></xs:attribute>
+        <xs:attribute name="current-state">
+            <xs:simpleType>
+                <xs:union>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:integer">
+                            <xs:minInclusive value="0"/>
+                            <xs:maxInclusive value="4"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="NO_CARD"/>
+                            <xs:enumeration value="CARD1"/>
+                            <xs:enumeration value="CARD2_MATCH"/>
+                            <xs:enumeration value="CARD2_UNMATCH"/>
+                            <xs:enumeration value="GAME_OVER"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:union>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="current-turn-started" type="mem:nonNegativeLong" use="required"></xs:attribute>
+        <xs:attribute name="game-started" type="xs:date" use="optional"></xs:attribute>
+    </xs:complexType>
 
 </xs:schema>
 
