@@ -1,0 +1,45 @@
+<!ELEMENT game (players, table, covered-pairs?, uncovered-pairs?)>
+<!ATTLIST game xmlns:xsi CDATA #IMPLIED
+               xmlns CDATA #IMPLIED
+               xsi:schemaLocation CDATA #IMPLIED
+               current-player IDREF #IMPLIED
+               current-card1  CDATA #IMPLIED
+               current-card2  CDATA #IMPLIED
+               current-state  ( 0 | 1 | 2 | 3 | 4 | NO_CARD | CARD1
+                              | CARD2_MATCH | CARD2_UNMATCH | GAME_OVER) #REQUIRED
+               current-turn-started CDATA #REQUIRED
+               game-started CDATA #IMPLIED>
+
+<!ELEMENT players (player+)>
+<!ELEMENT player (player-description?, uncovered-pairs?)>
+<!ATTLIST player name ID #IMPLIED
+                 spent-time CDATA #IMPLIED>
+
+<!ELEMENT player-description (#PCDATA | date)* >
+
+<!ELEMENT table (card, card+)>
+
+<!ELEMENT card EMPTY>
+<!ATTLIST card column CDATA #REQUIRED
+               row    CDATA #REQUIRED
+               id     CDATA #REQUIRED
+               key CDATA #REQUIRED
+               current-state ( 0 | 1 | COVERED | UNCOVERED) #REQUIRED
+               uncover-count CDATA "0">
+
+<!--           key    ID #REQUIRED
+geht nicht, weil ID ein XML-Name sein muss, und daher nicht mit Ziffern
+beginnen darf -->
+
+<!ELEMENT covered-pairs (pair*)>
+<!ELEMENT uncovered-pairs (pair*)>
+
+<!ELEMENT pair EMPTY>
+<!ATTLIST pair card1 CDATA #IMPLIED
+               card2 CDATA #IMPLIED>
+
+<!-- card1 und card2 sollten eigentlich IDREF sein, das geht aber nicht,
+weil das Attribut key von card dafür ID sein müsste, was aber nicht
+erlaubt ist. -->
+
+<!ELEMENT date ANY>
