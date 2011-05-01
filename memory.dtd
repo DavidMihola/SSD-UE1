@@ -11,8 +11,11 @@
                game-started CDATA #IMPLIED>
 
 <!ELEMENT players (player+)>
+
+<!-- player name soll als Schlüssel verwendet werden, daher besser #REQUIRED?-->
+
 <!ELEMENT player (player-description?, uncovered-pairs?)>
-<!ATTLIST player name ID #IMPLIED
+<!ATTLIST player name ID #REQUIRED
                  spent-time CDATA #IMPLIED>
 
 <!ELEMENT player-description (#PCDATA | date)* >
@@ -23,7 +26,7 @@
 <!ATTLIST card column CDATA #REQUIRED
                row    CDATA #REQUIRED
                id     CDATA #REQUIRED
-               key CDATA #REQUIRED
+               key    CDATA #REQUIRED
                current-state ( 0 | 1 | COVERED | UNCOVERED) #REQUIRED
                uncover-count CDATA "0">
 
@@ -32,14 +35,16 @@ geht nicht, weil ID ein XML-Name sein muss, und daher nicht mit Ziffern
 beginnen darf -->
 
 <!ELEMENT covered-pairs (pair*)>
+
 <!ELEMENT uncovered-pairs (pair*)>
 
 <!ELEMENT pair EMPTY>
-<!ATTLIST pair card1 CDATA #IMPLIED
-               card2 CDATA #IMPLIED>
+<!ATTLIST pair card1 CDATA #REQUIRED
+               card2 CDATA #REQUIRED
+               is-match ( true | false ) "false">
 
 <!-- card1 und card2 sollten eigentlich IDREF sein, das geht aber nicht,
 weil das Attribut key von card dafür ID sein müsste, was aber nicht
 erlaubt ist. -->
 
-<!ELEMENT date ANY>
+<!ELEMENT date (#PCDATA)>
